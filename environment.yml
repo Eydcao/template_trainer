@@ -1,0 +1,8 @@
+name: ai-train-template
+channels:
+  - conda-forge
+  - nvidia
+dependencies:
+  - python=3.11.*
+  - pip
+  - poetry=1.*

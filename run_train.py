@@ -40,12 +40,8 @@ def run_train(cfg, model_class, dataset_class, trainer_class):
 
     # Model and dataset creation
     model = model_class(cfg.model)
-    train_datapipe = dataset_class(
-        cfg.dataset, cfg.dataset_workers, cfg.base_seed, "train"
-    )
-    test_datapipe = dataset_class(
-        cfg.dataset, cfg.dataset_workers, cfg.base_seed, "test"
-    )
+    train_datapipe = dataset_class(cfg.dataset, cfg.dataset_workers, cfg.base_seed, "train")
+    test_datapipe = dataset_class(cfg.dataset, cfg.dataset_workers, cfg.base_seed, "test")
 
     # Trainer creation
     trainer = trainer_class(model, cfg.model, cfg.opt, cfg.dataset, tc_rng)
@@ -65,9 +61,7 @@ def run_train(cfg, model_class, dataset_class, trainer_class):
     )
 
     # Printing meta info of the training
-    time_stamp = datetime.now(pytz.timezone("America/Los_Angeles")).strftime(
-        "%Y%m%d-%H%M%S"
-    )
+    time_stamp = datetime.now(pytz.timezone("America/Los_Angeles")).strftime("%Y%m%d-%H%M%S")
     print("stamp: {}".format(time_stamp))
 
     # Infinite data loopers for training and testing
@@ -91,14 +85,8 @@ def run_train(cfg, model_class, dataset_class, trainer_class):
         # Log loss
         if (
             (trainer.train_step % cfg.loss_freq == 0)
-            or (
-                trainer.train_step % (cfg.loss_freq // 10) == 0
-                and trainer.train_step <= cfg.loss_freq
-            )
-            or (
-                trainer.train_step % (cfg.loss_freq // 10) == 0
-                and trainer.train_step >= total_steps - cfg.loss_freq
-            )
+            or (trainer.train_step % (cfg.loss_freq) == 0 and trainer.train_step <= cfg.loss_freq)
+            or (trainer.train_step % (cfg.loss_freq) == 0 and trainer.train_step >= total_steps - cfg.loss_freq)
         ):
             with torch.no_grad():
                 # Train loss and error
@@ -113,14 +101,8 @@ def run_train(cfg, model_class, dataset_class, trainer_class):
         # Log test error plot
         if cfg.plot and (
             (trainer.train_step % cfg.plot_freq == 0)
-            or (
-                trainer.train_step % (cfg.plot_freq // 10) == 0
-                and trainer.train_step <= cfg.plot_freq
-            )
-            or (
-                trainer.train_step % (cfg.plot_freq // 10) == 0
-                and trainer.train_step >= total_steps - cfg.plot_freq
-            )
+            or (trainer.train_step % (cfg.plot_freq) == 0 and trainer.train_step <= cfg.plot_freq)
+            or (trainer.train_step % (cfg.plot_freq) == 0 and trainer.train_step >= total_steps - cfg.plot_freq)
         ):
             test_data = next(test_loopers)
             trainer.eval_plot(test_data, "test", cfg.board)
@@ -130,12 +112,7 @@ def run_train(cfg, model_class, dataset_class, trainer_class):
             ckpt_dir = f"{cfg.dump_dir}/{cfg.project}/{time_stamp}"
             if not os.path.exists(ckpt_dir):
                 os.makedirs(ckpt_dir)
-            print(
-                "Current time: "
-                + datetime.now(pytz.timezone("America/Los_Angeles")).strftime(
-                    "%Y%m%d-%H%M%S"
-                )
-            )
+            print("Current time: " + datetime.now(pytz.timezone("America/Los_Angeles")).strftime("%Y%m%d-%H%M%S"))
             trainer.save(ckpt_dir)
 
         # Training iteration

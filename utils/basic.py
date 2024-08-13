@@ -57,9 +57,7 @@ def get_git_hash():
 def get_sentence_from_ids(ids, tokenizer, clean=True):
     tokens = tokenizer.convert_ids_to_tokens(ids)
     if clean:
-        tokens_clean = [
-            token for token in tokens if token not in tokenizer.all_special_tokens
-        ]
+        tokens_clean = [token for token in tokens if token not in tokenizer.all_special_tokens]
         sentence = tokenizer.convert_tokens_to_string(tokens_clean).replace(" ##", "")
     else:
         sentence = tokenizer.convert_tokens_to_string(tokens)
@@ -137,41 +135,29 @@ class TicToc:
         total_time = self.end_time[name] - self.start_time[name]
         print(f"{name} Took {total_time:.4f} seconds", flush=True)
 
-    def estimate_time(
-        self, name, ratio, samples_processed=None, timezone_str="America/Los_Angeles"
-    ):
-        print(
-            "==========================Time Estimation Starts=========================="
-        )
+    def estimate_time(self, name, ratio, samples_processed=None, timezone_str="America/Los_Angeles"):
+        print("==========================Time Estimation Starts==========================")
         timezone = pytz.timezone(timezone_str)
         current_time = datetime.now(timezone)
         current_time_str = current_time.strftime("%Y-%m-%d %H:%M:%S")
         print(f"Current time in {timezone_str}:", current_time_str)
         self.end_time[name] = time.perf_counter()
         time_consumed = self.end_time[name] - self.start_time[name]
-        days_consumed, hours_consumed, minutes_consumed, seconds_consumed = (
-            get_days_hours_mins_seconds(time_consumed)
-        )
-        print(
-            f"Time consumed: {days_consumed}-{hours_consumed:02d}:{minutes_consumed:02d}:{seconds_consumed:02d}"
-        )
+        days_consumed, hours_consumed, minutes_consumed, seconds_consumed = get_days_hours_mins_seconds(time_consumed)
+        print(f"Time consumed: {days_consumed}-{hours_consumed:02d}:{minutes_consumed:02d}:{seconds_consumed:02d}")
         if samples_processed is not None:
             samples_processed_per_second = samples_processed / time_consumed
             print(f"Samples processed per second: {samples_processed_per_second:.2f}")
         time_remaining = time_consumed * (1 - ratio) / ratio
-        days_remaining, hours_remaining, minutes_remaining, seconds_remaining = (
-            get_days_hours_mins_seconds(time_remaining)
+        days_remaining, hours_remaining, minutes_remaining, seconds_remaining = get_days_hours_mins_seconds(
+            time_remaining
         )
         print(
             f"Estimated remaining time: {days_remaining}-{hours_remaining:02d}:{minutes_remaining:02d}:{seconds_remaining:02d}"
         )
         time_total = time_consumed / ratio
-        days_total, hours_total, minutes_total, seconds_total = (
-            get_days_hours_mins_seconds(time_total)
-        )
-        print(
-            f"Estimated total time: {days_total}-{hours_total:02d}:{minutes_total:02d}:{seconds_total:02d}"
-        )
+        days_total, hours_total, minutes_total, seconds_total = get_days_hours_mins_seconds(time_total)
+        print(f"Estimated total time: {days_total}-{hours_total:02d}:{minutes_total:02d}:{seconds_total:02d}")
         finish_time = current_time + timedelta(seconds=time_remaining)
         finish_time_str = finish_time.strftime("%Y-%m-%d %H:%M:%S")
         print(f"Percentage finished: {ratio * 100 :.2f}%")
@@ -292,9 +278,7 @@ def merge_images(figs_2d, spacing=0):
             buf.close()
 
     # Determine total size for the final merged image
-    total_height = sum(img.height for img in row_images) + spacing * (
-        len(row_images) - 1
-    )
+    total_height = sum(img.height for img in row_images) + spacing * (len(row_images) - 1)
 
     # Create final merged image and paste row images
     merged_img = Image.new("RGB", (total_width, total_height))

@@ -62,9 +62,7 @@ class Base_Trainer:
         Raises:
             NotImplementedError: This method should be implemented in child classes.
         """
-        raise NotImplementedError(
-            "_model_forward need to be implemented in child class."
-        )
+        raise NotImplementedError("_model_forward need to be implemented in child class.")
 
     def get_input_target(self, data):
         """
@@ -79,9 +77,7 @@ class Base_Trainer:
         Raises:
             NotImplementedError: This method should be implemented in child classes.
         """
-        raise NotImplementedError(
-            "get_input_target need to be implemented in child class."
-        )
+        raise NotImplementedError("get_input_target need to be implemented in child class.")
 
     def accumulate(self, data):
         """
@@ -139,9 +135,7 @@ class Base_Trainer:
         Raises:
             NotImplementedError: This method should be implemented in child classes.
         """
-        raise NotImplementedError(
-            "print_metrics need to be implemented in child class."
-        )
+        raise NotImplementedError("print_metrics need to be implemented in child class.")
 
     def eval_plot(self, data, prefix):
         """

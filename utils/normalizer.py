@@ -26,31 +26,19 @@ class Normalizer(torch.nn.Module):
         self.size = size
         self.dtype = dtype
         self.synced = False
-        self.std_eps = tpm.Parameter(
-            torch.tensor(std_epsilon, dtype=dtype, device=device), requires_grad=False
-        )
+        self.std_eps = tpm.Parameter(torch.tensor(std_epsilon, dtype=dtype, device=device), requires_grad=False)
 
         self._max_accumulations = tpm.Parameter(
             torch.tensor(max_accumulations, dtype=dtype, device=device),
             requires_grad=False,
         )
-        self._acc_weight = tpm.Parameter(
-            torch.zeros(1, dtype=dtype, device=device), requires_grad=False
-        )
-        self._num_accumulations = tpm.Parameter(
-            torch.zeros(1, dtype=dtype, device=device), requires_grad=False
-        )
-        self._E_data = tpm.Parameter(
-            torch.zeros(size, dtype=dtype, device=device), requires_grad=False
-        )
-        self._E_data_squared = tpm.Parameter(
-            torch.zeros(size, dtype=dtype, device=device), requires_grad=False
-        )
+        self._acc_weight = tpm.Parameter(torch.zeros(1, dtype=dtype, device=device), requires_grad=False)
+        self._num_accumulations = tpm.Parameter(torch.zeros(1, dtype=dtype, device=device), requires_grad=False)
+        self._E_data = tpm.Parameter(torch.zeros(size, dtype=dtype, device=device), requires_grad=False)
+        self._E_data_squared = tpm.Parameter(torch.zeros(size, dtype=dtype, device=device), requires_grad=False)
         # self.synchronize(reduceOp=dist.ReduceOp.AVG)
         print(
-            "##### NORMALIZER {}: Max Accumulations set to {} ####".format(
-                name, self._max_accumulations
-            ),
+            "##### NORMALIZER {}: Max Accumulations set to {} ####".format(name, self._max_accumulations),
             flush=True,
         )
 
@@ -61,9 +49,7 @@ class Normalizer(torch.nn.Module):
             self._accumulate(batched_data)
             if self._num_accumulations >= self._max_accumulations:
                 logging.warning(
-                    "##### NORMALIZER: Max Accumulations {} reached. ####\n\n".format(
-                        self._num_accumulations
-                    )
+                    "##### NORMALIZER: Max Accumulations {} reached. ####\n\n".format(self._num_accumulations)
                 )
 
         return ((batched_data - self.mean()) / self.std_with_epsilon()).type(
@@ -74,21 +60,13 @@ class Normalizer(torch.nn.Module):
         """Function to perform the accumulation of the batch_data statistics."""
         batched_data = batched_data.view(-1, self.size)
         old_weight = self._acc_weight.data
-        delta_weight = torch.tensor(batched_data.shape[0] / self.unit).type(
-            dtype=self.dtype, non_blocking=True
-        )
-        delta_mean_data = torch.mean(batched_data, dim=0).type(
-            dtype=self.dtype, non_blocking=True
-        )
-        delta_mean_squared_data = torch.mean(batched_data**2, dim=0).type(
-            dtype=self.dtype, non_blocking=True
-        )
+        delta_weight = torch.tensor(batched_data.shape[0] / self.unit).type(dtype=self.dtype, non_blocking=True)
+        delta_mean_data = torch.mean(batched_data, dim=0).type(dtype=self.dtype, non_blocking=True)
+        delta_mean_squared_data = torch.mean(batched_data**2, dim=0).type(dtype=self.dtype, non_blocking=True)
 
         self._acc_weight.data = self._acc_weight.data.add(delta_weight)
         self._E_data.data = (
-            self._E_data.data.multiply(old_weight)
-            .add(delta_mean_data.multiply(delta_weight))
-            .divide(self._acc_weight)
+            self._E_data.data.multiply(old_weight).add(delta_mean_data.multiply(delta_weight)).divide(self._acc_weight)
         )
         self._E_data_squared.data = (
             self._E_data_squared.data.multiply(old_weight)
@@ -104,9 +82,7 @@ class Normalizer(torch.nn.Module):
         # Prepare the table data
         table = [["mean"] + mean_values.tolist(), ["std"] + std_values.tolist()]
 
-        print(
-            f"##### NORMALIZER {self.name}: Accumulations {self._num_accumulations} ####"
-        )
+        print(f"##### NORMALIZER {self.name}: Accumulations {self._num_accumulations} ####")
         print(tabulate(table, tablefmt="grid"))
 
     def inverse(self, normalized_batch_data):

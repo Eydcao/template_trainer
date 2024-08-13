@@ -36,6 +36,10 @@ class BaseDataPipe(IterableDataset):
         self.tc_rng = None
         self._init_rng()
 
+    # =====================================================================
+    # Methods that need to be implemented in child classes
+    # =====================================================================
+
     def _get_file_list(self):
         """
         Get the list of files in the data directory.
@@ -57,9 +61,7 @@ class BaseDataPipe(IterableDataset):
         Raises:
             NotImplementedError: If not implemented in the child class.
         """
-        raise NotImplementedError(
-            "_read_path should be implemented in the child class."
-        )
+        raise NotImplementedError("_read_path should be implemented in the child class.")
 
     def _get_slice(self, data, index):
         """
@@ -74,9 +76,7 @@ class BaseDataPipe(IterableDataset):
         Raises:
             NotImplementedError: If not implemented in the child class.
         """
-        raise NotImplementedError(
-            "_get_slice should be implemented in the child class."
-        )
+        raise NotImplementedError("_get_slice should be implemented in the child class.")
 
     def _proc_data(self, data, rng, tc_rng):
         """
@@ -92,9 +92,11 @@ class BaseDataPipe(IterableDataset):
         Raises:
             NotImplementedError: If not implemented in the child class.
         """
-        raise NotImplementedError(
-            "_proc_data should be implemented in the child class."
-        )
+        raise NotImplementedError("_proc_data should be implemented in the child class.")
+
+    # =====================================================================
+    # Methods that do not need modifications in child classes
+    # =====================================================================
 
     def _init_rng(self):
         """Initialize different random generators for each worker."""

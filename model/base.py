@@ -26,12 +26,50 @@ class Base(torch.nn.Module):
         maxacum = 5e5
         input_dim = cfg.input_dim
         target_dim = cfg.target_dim
-        self._inputNormalizer = Normalizer(
-            input_dim, max_accumulations=maxacum, device=device, name="in_norm"
-        )
-        self._targetNormalizer = Normalizer(
-            target_dim, max_accumulations=maxacum, device=device, name="out_norm"
-        )
+        self._inputNormalizer = Normalizer(input_dim, max_accumulations=maxacum, device=device, name="in_norm")
+        self._targetNormalizer = Normalizer(target_dim, max_accumulations=maxacum, device=device, name="out_norm")
+
+    # =====================================================================
+    # Methods that need to be implemented in child classes
+    # =====================================================================
+
+    def _forward(self, input):
+        """
+        Abstract method for the forward pass of the model.
+
+        This method should be implemented by child classes.
+
+        Args:
+            input (torch.Tensor): Normalized input tensor of shape (B, ..., C_in).
+
+        Returns:
+            torch.Tensor: Output tensor of shape (B, ..., C_out).
+
+        Raises:
+            NotImplementedError: If not implemented in the child class.
+        """
+        raise NotImplementedError("_forward needs to be implemented in child class.")
+
+    def _postprocess(self, pred):
+        """
+        Abstract method for the postprocess of the model.
+
+        This method should be implemented by child classes.
+
+        Args:
+            pred (torch.Tensor): Output tensor of shape (B, ..., C_out).
+
+        Returns:
+            torch.Tensor: Postprocessed output tensor of shape (B, ..., C_out).
+
+        Raises:
+            Could be implemented in the child class. By defualt, no postprocess is done.
+        """
+        return pred
+
+    # =====================================================================
+    # Methods that do not need modifications in child classes
+    # =====================================================================
 
     def accumulate(self, input, target):
         """
@@ -53,23 +91,6 @@ class Base(torch.nn.Module):
         print("Target Normalizer:")
         self._targetNormalizer.report()
 
-    def _forward(self, input):
-        """
-        Abstract method for the forward pass of the model.
-
-        This method should be implemented by child classes.
-
-        Args:
-            input (torch.Tensor): Normalized input tensor of shape (B, ..., C_in).
-
-        Returns:
-            torch.Tensor: Output tensor of shape (B, ..., C_out).
-
-        Raises:
-            NotImplementedError: If not implemented in the child class.
-        """
-        raise NotImplementedError("_forward needs to be implemented in child class.")
-
     def forward(self, input):
         """
         Perform the forward pass of the model with normalization.
@@ -89,5 +110,6 @@ class Base(torch.nn.Module):
         normalized_input = self._inputNormalizer(input, accumulate=False)
         normalized_pred = self._forward(normalized_input)
         pred = self._targetNormalizer.inverse(normalized_pred)
+        post_pred = self._postprocess(pred)
 
-        return pred
+        return post_pred

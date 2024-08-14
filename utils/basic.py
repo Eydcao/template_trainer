@@ -217,21 +217,6 @@ def plt_to_wandb(fig, cfg=None):
     return wandb_image
 
 
-def make_image(array, wandb=True, title=None, cfg=None):
-    fig = plt.figure(figsize=(4, 4))
-    cmap = "bwr"
-    vmax = np.max(np.abs(array))
-    plt.imshow(array, cmap=cmap, vmin=-vmax, vmax=vmax)
-    plt.colorbar()
-    if title is not None:
-        plt.title(title)
-    if not wandb:
-        return fig
-    wandb_image = plt_to_wandb(fig, cfg)
-    plt.close("all")
-    return wandb_image
-
-
 def merge_images(figs_2d, spacing=0):
     """
     Converts a 2D list of Matplotlib figures to a single PIL image arranged in a grid.

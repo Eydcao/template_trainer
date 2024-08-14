@@ -50,7 +50,7 @@ class Base(torch.nn.Module):
         """
         raise NotImplementedError("_forward needs to be implemented in child class.")
 
-    def _postprocess(self, pred):
+    def _postprocess(self, input, pred):
         """
         Abstract method for the postprocess of the model.
 
@@ -110,6 +110,6 @@ class Base(torch.nn.Module):
         normalized_input = self._inputNormalizer(input, accumulate=False)
         normalized_pred = self._forward(normalized_input)
         pred = self._targetNormalizer.inverse(normalized_pred)
-        post_pred = self._postprocess(pred)
+        post_pred = self._postprocess(input, pred)
 
         return post_pred

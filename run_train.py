@@ -6,7 +6,7 @@ import pytz
 from datetime import datetime
 from omegaconf import OmegaConf
 from torch.utils.data import DataLoader
-from utils import (
+from template_trainer.utils import (
     set_seed,
     timer,
     InfiniteDataLooper,
@@ -80,7 +80,7 @@ def run_train(cfg, model_class, dataset_class, trainer_class):
     # Training loop starts
     total_steps = cfg.epochs * cfg.steps_per_epoch
     print("Training starts...")
-    for _ in tqdm(range(total_steps + 1)):
+    for _ in range(total_steps + 1):
         train_data = next(train_loopers)
 
         # Log loss
@@ -122,7 +122,11 @@ def run_train(cfg, model_class, dataset_class, trainer_class):
         # Time estimation
         if trainer.train_step == cfg.time_warm:
             timer.tic("time estimate")
-        if trainer.train_step > 0 and (trainer.train_step % cfg.time_freq == 0):
+        if (
+            trainer.train_step > 0
+            and ((trainer.train_step - cfg.time_warm) % cfg.time_freq == 0)
+            and trainer.train_step - cfg.time_warm > 0
+        ):
             ratio = (trainer.train_step - cfg.time_warm) / total_steps
             timer.estimate_time("time estimate", ratio)
 

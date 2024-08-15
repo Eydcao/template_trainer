@@ -1,5 +1,5 @@
 import torch
-from utils import Normalizer
+from template_trainer.utils import Normalizer
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

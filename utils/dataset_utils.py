@@ -8,7 +8,7 @@ class InfiniteDataLooper:
         try:
             out = next(self.data_iter)
         except StopIteration:
-            print(f"reached end of data loader, restart {self.data_iter_num}")
+            # print(f"reached end of data loader, restart {self.data_iter_num}")
             self.data_iter_num += 1
             self.data_iter = iter(self.data_loader)
             out = next(self.data_iter)

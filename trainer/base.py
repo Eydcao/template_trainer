@@ -51,63 +51,54 @@ class Base_Trainer:
 
     def _model_forward(self, data):
         """
-        A wrapper to call model.forward.
+        Perform a forward pass through the model.
 
         Args:
             data: PyTorch Geometric Data object containing input data.
 
         Returns:
-            Tuple of average mean squared error and predicted target.
-
-        Raises:
-            NotImplementedError: This method should be implemented in child classes.
+            torch.Tensor: preded target.
         """
-        raise NotImplementedError("_model_forward need to be implemented in child class.")
+        input, _ = self.get_input_target(data)
+        pred = self.model(input)
+        return pred
 
     def get_input_target(self, data):
         """
-        Extract the label data from the input data.
+        Extract the input and target data from the data object.
 
         Args:
-            data: PyTorch Geometric Data object containing input data.
+            data: PyTorch Geometric Data object containing input and target data.
 
         Returns:
-            Tuple of label data and label mask.
-
-        Raises:
-            NotImplementedError: This method should be implemented in child classes.
+            tuple: (input data, target data)
         """
-        raise NotImplementedError("get_input_target need to be implemented in child class.")
+        return data[0], data[1]
 
     def accumulate(self, data):
         """
-        Calculate the relative error for each channel and output both mean and std.
+        Accumulate statistics for the model's normalizers.
 
         Args:
-            data: PyTorch Geometric Data object containing input data.
-
-        Returns:
-            Tuple of mean and std of the error.
-
-        Raises:
-            NotImplementedError: This method should be implemented in child classes.
+            data: PyTorch Geometric Data object containing input and target data.
         """
-        raise NotImplementedError("accumulate need to be implemented in child class.")
+        data = self.move_to_device(data)
+        input, target = self.get_input_target(data)
+        self.model.accumulate(input, target)
 
     def _loss_fn(self, data):
         """
-        Calculate the loss function.
+        Calculate the loss function using RMSE.
 
         Args:
-            data: PyTorch Geometric Data object containing input data.
+            data: PyTorch Geometric Data object containing input and target data.
 
         Returns:
-            Loss value in RMSE.
-
-        Raises:
-            NotImplementedError: This method should be implemented in child classes.
+            torch.Tensor: RMSE loss value.
         """
-        raise NotImplementedError("_loss_fn need to be implemented in child class.")
+        pred = self.get_pred(data)
+        _, target = self.get_input_target(data)
+        return torch.sqrt(torch.mean((pred - target) ** 2))
 
     def get_metrics(self, data):
         """

@@ -37,7 +37,7 @@ class BaseDataPipe(IterableDataset):
         self._init_rng()
 
     # =====================================================================
-    # Methods that need to be implemented in child classes
+    # Methods that may need to be implemented in child classes
     # =====================================================================
 
     def _get_file_list(self):
@@ -65,34 +65,34 @@ class BaseDataPipe(IterableDataset):
 
     def _get_slice(self, data, index):
         """
-        Get a slice of the trajectory data.
-
-        This method should be implemented in child classes.
+        Get a slice of the data for a specific batch and time step.
 
         Args:
-            data: TrajectoryReader object containing the trajectory data.
-            index (int): Index of the slice.
+            data (tuple): Tuple containing (input tensor, target tensor).
+            index (int): Index of the slice to retrieve.
 
-        Raises:
-            NotImplementedError: If not implemented in the child class.
+        Returns:
+            tuple: (input slice, target slice)
         """
-        raise NotImplementedError("_get_slice should be implemented in the child class.")
+        input, target = data
+
+        return input[index], target[index]
 
     def _proc_data(self, data, rng, tc_rng):
         """
-        Process the fields and inject noise if necessary.
+        Process the data and optionally inject noise.
 
-        This method should be implemented in child classes.
+        In this implementation, no additional processing is done.
 
         Args:
-            data (tuple): Tuple of input and target features.
+            data (tuple): Tuple of (input features, target features).
             rng (np.random.Generator): Random number generator for numpy.
             tc_rng (torch.Generator): Random number generator for torch.
 
-        Raises:
-            NotImplementedError: If not implemented in the child class.
+        Returns:
+            tuple: Processed (input features, target features).
         """
-        raise NotImplementedError("_proc_data should be implemented in the child class.")
+        return data
 
     # =====================================================================
     # Methods that do not need modifications in child classes

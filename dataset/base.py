@@ -138,6 +138,8 @@ class BaseDataPipe(IterableDataset):
         """
         if self.num_workers <= 1:
             return [self.file_list]
+        elif self.num_workers > len(self.file_list):
+            return [self.file_list for _ in range(self.num_workers)]
         else:
             return np.array_split(self.file_list, self.num_workers)
 

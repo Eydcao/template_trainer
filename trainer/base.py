@@ -88,17 +88,17 @@ class Base_Trainer:
 
     def _loss_fn(self, data):
         """
-        Calculate the loss function using RMSE.
+        Calculate the loss function using MSE.
 
         Args:
             data: PyTorch Geometric Data object containing input and target data.
 
         Returns:
-            torch.Tensor: RMSE loss value.
+            torch.Tensor: MSE loss value.
         """
         pred = self.get_pred(data)
         _, target = self.get_input_target(data)
-        return torch.sqrt(torch.mean((pred - target) ** 2))
+        return torch.mean((pred - target) ** 2)
 
     def get_metrics(self, data):
         """

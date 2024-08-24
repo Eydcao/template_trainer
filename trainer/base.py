@@ -141,6 +141,39 @@ class Base_Trainer:
         """
         raise NotImplementedError("eval_plot need to be implemented in child class.")
 
+    def run_rollout(self, data):
+        """
+        Run the rollout for the model.
+
+        Args:
+            data: PyTorch Geometric Data object containing input data.
+
+        Raises:
+            NotImplementedError: This method should be implemented in child classes.
+        """
+        raise NotImplementedError("run_rollout need to be implemented in child class.")
+
+    def post_process_rollout(self, data, rollout_res):
+        """
+        Post-process the rollout results.
+
+        Args:
+            rollout_res: Rollout results.
+
+        Raises:
+            NotImplementedError: This method should be implemented in child classes.
+        """
+        raise NotImplementedError("post_process_rollout need to be implemented in child class.")
+
+    def summarize_rollout(self):
+        """
+        Summarize the rollout results.
+
+        Raises:
+            NotImplementedError: This method should be implemented in child classes.
+        """
+        raise NotImplementedError("summarize_rollout need to be implemented in child class.")
+
     # =====================================================================
     # Methods that do not need modifications in child classes
     # =====================================================================

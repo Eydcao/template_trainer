@@ -43,8 +43,7 @@ def run_rollout(cfg, model_class, dataset_class, trainer_class):
     # Trainer creation
     trainer = trainer_class(model, cfg.model, cfg.opt, cfg.dataset, tc_rng)
     # restore model
-    ckpt_path = os.path.join(cfg.restore_dir, str(cfg.restore_step) + "_params.pth")
-    trainer.restore(ckpt_path)
+    trainer.restore(cfg.restore_dir, cfg.restore_step)
 
     # Data loaders creation
     test_datapipe = dataset_class(cfg.dataset, 0, cfg.base_seed, "rollout")
@@ -59,7 +58,7 @@ def run_rollout(cfg, model_class, dataset_class, trainer_class):
     print("stamp: {}".format(time_stamp))
 
     # Rollout loop starts
-    for file_idx, batch in tqdm(enumerate(test_loader), total=len(test_loader)):
+    for file_idx, batch in tqdm(enumerate(test_loader)):
         # to device
         batch = trainer.move_to_device(batch)
         # run rollout for 1 batch

@@ -58,13 +58,13 @@ def run_rollout(cfg, model_class, dataset_class, trainer_class):
     print("stamp: {}".format(time_stamp))
 
     # Rollout loop starts
-    for file_idx, batch in tqdm(enumerate(test_loader)):
+    for bi, batch in tqdm(enumerate(test_loader)):
         # to device
         batch = trainer.move_to_device(batch)
         # run rollout for 1 batch
         rollout_res = trainer.rollout(batch)
         # post-process the result
-        trainer.post_process_rollout(batch, rollout_res)
+        trainer.post_process_rollout(batch, rollout_res, bi)
 
     # summarize results
     trainer.summarize_rollout()

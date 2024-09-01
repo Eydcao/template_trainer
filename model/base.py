@@ -26,6 +26,7 @@ class Base(torch.nn.Module):
         maxacum = 5e5
         input_dim = cfg.input_dim
         target_dim = cfg.target_dim
+        self._recover_pred_unit = cfg.recover_pred_unit
         self._inputNormalizer = Normalizer(input_dim, max_accumulations=maxacum, device=device, name="in_norm")
         self._targetNormalizer = Normalizer(target_dim, max_accumulations=maxacum, device=device, name="out_norm")
 
@@ -33,7 +34,7 @@ class Base(torch.nn.Module):
     # Methods that need to be implemented in child classes
     # =====================================================================
 
-    def _forward(self, input):
+    def _forward(self, input, **kwargs):
         """
         Abstract method for the forward pass of the model.
 
@@ -49,6 +50,28 @@ class Base(torch.nn.Module):
             NotImplementedError: If not implemented in the child class.
         """
         raise NotImplementedError("_forward needs to be implemented in child class.")
+
+    def _preprocess(self, input, **kwargs):
+        """
+        Preprocess the normalized input tensor before the forward pass.
+
+        By default, this method normalizes the input using the input normalizer.
+
+        Args:
+            input (torch.Tensor): Normalized input tensor of shape (B, ..., C_in).
+        """
+        return self._inputNormalizer(input, accumulate=False)
+
+    def _postprocess(self, output, **kwargs):
+        """
+        Postprocess the normalized output tensor after the forward pass.
+
+        By default, this method denormalizes (or not) the output using the target normalizer.
+
+        Args:
+            output (torch.Tensor): Normalized output tensor of shape (B, ..., C_out).
+        """
+        return output if not self._recover_pred_unit else self._targetNormalizer.inverse(output)
 
     # =====================================================================
     # Methods that do not need modifications in child classes
@@ -74,7 +97,7 @@ class Base(torch.nn.Module):
         print("Target Normalizer:")
         self._targetNormalizer.report()
 
-    def forward(self, input):
+    def forward(self, input, **kwargs):
         """
         Perform the forward pass of the model with normalization.
 
@@ -90,8 +113,8 @@ class Base(torch.nn.Module):
         Process:
             input -> normalize -> model -> denormalize -> output
         """
-        normalized_input = self._inputNormalizer(input, accumulate=False)
-        normalized_pred = self._forward(normalized_input)
-        pred = self._targetNormalizer.inverse(normalized_pred)
+        input = self._preprocess(input, **kwargs)
+        pred = self._forward(input, **kwargs)
+        pred = self._postprocess(pred, **kwargs)
 
         return pred

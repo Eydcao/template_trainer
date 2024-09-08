@@ -101,7 +101,7 @@ class BaseDataPipe(IterableDataset):
     def _init_rng(self):
         """Initialize different random generators for each worker."""
         worker_id, _ = self._get_worker_id_and_info()
-        train_seed = np.random.randint(1000)
+        train_seed = np.random.randint(1000) if self.train else np.random.randint(2000)
         seed_list = [train_seed, worker_id, self.base_seed]
         seed = self._hash(seed_list, 1000)
         self.rng = np.random.default_rng(seed)

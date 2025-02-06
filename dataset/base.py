@@ -66,17 +66,19 @@ class BaseDataPipe(IterableDataset):
     def _get_slice(self, data, index):
         """
         Get a slice of the data for a specific batch and time step.
+        Handles both single tensor and tuple data formats.
 
         Args:
-            data (tuple): Tuple containing (input tensor, target tensor).
-            index (int): Index of the slice to retrieve.
+            data: Single tensor or tuple of tensors
+            index (int): Index of the slice to retrieve
 
         Returns:
-            tuple: (input slice, target slice)
+            Single tensor slice or tuple of slices
         """
-        input, target = data
-
-        return input[index], target[index]
+        if isinstance(data, tuple):
+            return tuple(d[index] for d in data)
+        else:
+            return data[index]
 
     def _proc_data(self, data, rng, tc_rng):
         """

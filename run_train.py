@@ -44,7 +44,7 @@ def run_train(cfg, model_class, dataset_class, trainer_class):
     test_datapipe = dataset_class(cfg.dataset, cfg.dataset_workers, cfg.base_seed, "test")
 
     # Trainer creation
-    trainer = trainer_class(model, cfg.model, cfg.opt, cfg.dataset, tc_rng)
+    trainer = trainer_class(model, cfg, tc_rng)
 
     # Data loaders creation
     train_loader = DataLoader(

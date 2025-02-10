@@ -69,7 +69,7 @@ def run_train(cfg, model_class, dataset_class, trainer_class):
     test_loopers = InfiniteDataLooper(test_loader)
 
     # Accumulate channel mean and std for model
-    accumulation_steps = cfg.steps_per_epoch
+    accumulation_steps = cfg.opt.accumulation_steps
     print("Accumulating channel mean and std for model...")
     for _ in tqdm(range(accumulation_steps)):
         data = next(train_loopers)

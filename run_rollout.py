@@ -41,7 +41,7 @@ def run_rollout(cfg, model_class, dataset_class, trainer_class):
     model = model_class(cfg.model)
 
     # Trainer creation
-    trainer = trainer_class(model, cfg.model, cfg.opt, cfg.dataset, tc_rng)
+    trainer = trainer_class(model, cfg, tc_rng)
     # restore model
     trainer.restore(cfg.restore_dir, cfg.restore_step)
 
@@ -49,7 +49,7 @@ def run_rollout(cfg, model_class, dataset_class, trainer_class):
     test_datapipe = dataset_class(cfg.dataset, 0, cfg.base_seed, "rollout")
     test_loader = DataLoader(
         test_datapipe,
-        batch_size=1,
+        batch_size=cfg.batch,
         num_workers=0,
         pin_memory=True,
     )

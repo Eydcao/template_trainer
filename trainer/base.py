@@ -6,21 +6,17 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 class Base_Trainer:
-    def __init__(self, model, model_cfg, opt_cfg, dataset_cfg, tc_rng):
+    def __init__(self, model, cfg, tc_rng):
         """
         Initialize the Base_Trainer.
 
         Args:
             model: The model to be trained.
-            model_cfg: Model configuration.
-            opt_cfg: Optimizer configuration.
-            dataset_cfg: Dataset configuration.
+            cfg: Configuration containing optimizer, model, and dataset configurations.
             tc_rng: Random number generator for TensorCore operations.
         """
         self.model = model
-        self.model_cfg = model_cfg
-        self.opt_cfg = opt_cfg
-        self.dataset_cfg = dataset_cfg
+        self.cfg = cfg
         self.tc_rng = tc_rng
         if torch.cuda.device_count() > 1:
             print("Using", torch.cuda.device_count(), "GPUs!")
@@ -33,13 +29,13 @@ class Base_Trainer:
 
         self.optimizer = torch.optim.AdamW(
             filter(lambda p: p.requires_grad, self.model.parameters()),
-            lr=opt_cfg.peak_lr,
-            weight_decay=opt_cfg.weight_decay,
+            lr=cfg.opt.peak_lr,
+            weight_decay=cfg.opt.weight_decay,
         )
         self.lr_scheduler = WarmupCosineDecayScheduler(
             optimizer=self.optimizer,
-            warmup=opt_cfg.warmup_steps,
-            max_iters=opt_cfg.decay_steps,
+            warmup=cfg.opt.warmup_steps,
+            max_iters=cfg.opt.decay_steps,
         )
 
         print(self.model, flush=True)
@@ -153,7 +149,7 @@ class Base_Trainer:
         """
         raise NotImplementedError("run_rollout need to be implemented in child class.")
 
-    def post_process_rollout(self, data, rollout_res):
+    def post_process_rollout(self, data, rollout_res, bi):
         """
         Post-process the rollout results.
 
@@ -221,7 +217,7 @@ class Base_Trainer:
 
         # Gradient clipping
         model = self.model.module if hasattr(self.model, "module") else self.model
-        torch.nn.utils.clip_grad_norm_(model.parameters(), self.opt_cfg.gnorm_clip)
+        torch.nn.utils.clip_grad_norm_(model.parameters(), self.cfg.opt.gnorm_clip)
         self.optimizer.step()
         self.lr_scheduler.step()
         self.optimizer.zero_grad()
